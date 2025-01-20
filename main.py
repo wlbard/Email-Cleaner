@@ -38,6 +38,7 @@ def get_service():
 def list_and_delete_old_emails(service, categories="promotions", days=30):
     """
     List and delete emails older than set amount of days.
+    Default query clears all promotional emails older than 30 days.
     """
     for cat in categories:
         # 30 days ago from now
@@ -83,4 +84,4 @@ def list_and_delete_old_emails(service, categories="promotions", days=30):
 
 if __name__ == '__main__':
     service = get_service()
-    list_and_delete_old_emails(service, categories=["social", "promotions", "forums"], days=365*5)
+    list_and_delete_old_emails(service)
