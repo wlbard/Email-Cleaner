@@ -1,0 +1,6 @@
+# Ignore Credentials & Authentication
+credentials.json
+token.pickle
+
+# Ignore Virtual Environment
+venv/
