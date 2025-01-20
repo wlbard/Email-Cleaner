@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>Gmail Cleanup Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #1a1a2e, #16213e);
+            color: #e2e2e2;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .list-group-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            border-radius: 8px !important;
+            transition: all 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            color: #00f2fe;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            color: #00f2fe;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert-success {
+            border-left: 4px solid #198754;
+        }
+
+        .alert-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e2e2;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00f2fe;
+            color: #e2e2e2;
+            box-shadow: 0 0 0 0.25rem rgba(0, 242, 254, 0.25);
+        }
+
+        .btn-primary {
+            background: #00f2fe;
+            border: none;
+            color: #16213e;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #00d4e0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        #progress-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .progress-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-item.success {
+            border-left: 3px solid #198754;
+        }
+
+        .progress-item.error {
+            border-left: 3px solid #dc3545;
+        }
+
+        .progress-item.info {
+            border-left: 3px solid #0dcaf0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Gmail Cleanup Tool</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-4">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Custom Cleanup</h5>
+                        <form method="GET" action="{{ url_for('preview') }}" class="mb-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label">Email Category</label>
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="promotions">Promotions</option>
+                                        <option value="social">Social</option>
+                                        <option value="updates">Updates</option>
+                                        <option value="forums">Forums</option>
+                                        <option value="all">All Categories</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="days" class="form-label">Older Than (Days)</label>
+                                    <input type="number" class="form-control" id="days" name="days" 
+                                           value="30" min="1" max="365" required>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary w-100">Preview Emails</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <h5 class="card-title mb-4">Quick Actions</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('preview', category='promotions', days=30) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span>Clean Promotional Emails</span>
+                                <span class="badge bg-primary rounded-pill">30 days</span>
+                            </a>
+                            <a href="{{ url_for('preview', category='social', days=30) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span>Clean Social Emails</span>
+                                <span class="badge bg-primary rounded-pill">30 days</span>
+                            </a>
+                            <a href="{{ url_for('preview', category='updates', days=30) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span>Clean Updates Emails</span>
+                                <span class="badge bg-primary rounded-pill">30 days</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add this new section for progress updates -->
+                <div id="progress-container" class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Progress Updates</h5>
+                        <div id="progress-updates"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle Server-Sent Events
+        function startProgressStream() {
+            const progressContainer = document.getElementById('progress-container');
+            const progressUpdates = document.getElementById('progress-updates');
+            progressContainer.style.display = 'block';
+            progressUpdates.innerHTML = ''; // Clear previous updates
+
+            const evtSource = new EventSource("/stream");
+            
+            evtSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                const item = document.createElement('div');
+                item.className = `progress-item ${data.category}`;
+                item.textContent = data.message;
+                progressUpdates.appendChild(item);
+                item.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            evtSource.onerror = function(err) {
+                console.error("EventSource failed:", err);
+                evtSource.close();
+            };
+        }
+
+        // Add event listeners to all cleanup links and forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const cleanupLinks = document.querySelectorAll('.list-group-item');
+            cleanupLinks.forEach(link => {
+                link.addEventListener('click', startProgressStream);
+            });
+
+            const cleanupForm = document.querySelector('form');
+            cleanupForm.addEventListener('submit', startProgressStream);
+        });
+    </script>
+</body>
+</html> 

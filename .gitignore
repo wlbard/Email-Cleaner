@@ -4,3 +4,4 @@ token.pickle
 
 # Ignore Virtual Environment
 venv/
+.env
