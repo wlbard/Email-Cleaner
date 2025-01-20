@@ -21,6 +21,8 @@ Run the main script:
 python main.py
 ```
 
+To stop the script while it's running, press `Ctrl+C` (or `Command+C` on macOS) in the terminal. This will safely interrupt the execution.
+
 ## Configuration
 Ensure `credentials.json` is properly configured before running the application. This file contains the Gmail API credientials from Google, which can be configured and downloaded at https://developers.google.com/gmail.
 
