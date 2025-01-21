@@ -100,10 +100,10 @@ def oauth2callback():
 
 @app.route('/logout')
 def logout():
-    """Clear the session and logout"""
-    if 'credentials' in session:
-        del session['credentials']
-    return redirect('/')
+    # Clear the session
+    session.clear()
+    # Redirect to home page
+    return redirect(url_for('index'))
 
 @app.route('/preview')
 def preview():
