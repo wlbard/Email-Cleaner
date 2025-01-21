@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, Response, session
+from flask import Flask, render_template, redirect, url_for, flash, request, Response, session, jsonify
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -107,25 +107,103 @@ def logout():
 
 @app.route('/preview')
 def preview():
-    """Preview emails before deletion"""
-    try:
-        if 'credentials' not in session:
-            return redirect('/authorize')
+    """Redirect old preview route to index"""
+    return redirect(url_for('index'))
+
+@app.route('/stream-emails')
+def stream_emails():
+    """Stream emails as they're loaded"""
+    # Capture all request parameters and session data BEFORE entering generator
+    if 'credentials' not in session:
+        return Response(
+            f"data: {json.dumps({'type': 'error', 'message': 'Not authenticated'})}\n\n",
+            mimetype='text/event-stream'
+        )
+
+    # Get parameters from request
+    category = request.args.get('category', 'all')
+    days = int(request.args.get('days', 30))
+    
+    # Get credentials from session
+    credentials_dict = session['credentials']
+    
+    def generate(category, days, credentials_dict):
+        try:
+            credentials = Credentials(**credentials_dict)
+            if not credentials or not credentials.valid:
+                if credentials and credentials.expired and credentials.refresh_token:
+                    credentials.refresh(Request())
             
-        category = request.args.get('category', 'all')
-        days = int(request.args.get('days', 30))
-        
-        service = get_service()
-        if category == 'all':
-            categories = ['promotions', 'social', 'updates', 'forums']
-        else:
-            categories = [category]
+            service = build('gmail', 'v1', credentials=credentials)
             
-        emails = list_emails(service, categories=categories, days=days)
-        return render_template('preview.html', emails=emails, days=days)
-    except Exception as e:
-        flash(f'Error: {str(e)}', 'error')
-        return redirect('/')
+            # Define categories
+            if category == 'all':
+                categories = ['promotions', 'social', 'updates', 'forums']
+            else:
+                categories = [category]
+            
+            # Process each category
+            for cat in categories:
+                query = f'older_than:{days}d category:{cat}'
+                
+                try:
+                    results = service.users().messages().list(userId='me', q=query).execute()
+                    messages = results.get('messages', [])
+                    
+                    if not messages:
+                        continue
+                    
+                    for message in messages:
+                        try:
+                            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+                            header = service.users().messages().get(
+                                userId="me", 
+                                id=message["id"], 
+                                format='metadata', 
+                                metadataHeaders=['Subject', 'From']
+                            ).execute()
+                            
+                            sender = next((h['value'] for h in header['payload']['headers'] 
+                                         if h['name'].lower() == 'from'), 'Unknown')
+                            subject = next((h['value'] for h in header['payload']['headers'] 
+                                          if h['name'].lower() == 'subject'), 'No Subject')
+                            
+                            # Update date format to mm/dd/yy hh:mm
+                            date = datetime.fromtimestamp(int(msg['internalDate'])/1000).strftime('%m/%d/%y %H:%M')
+                            
+                            email_data = {
+                                'id': message['id'],
+                                'sender': sender,
+                                'subject': subject,
+                                'date': date,
+                                'category': cat
+                            }
+                            
+                            yield f"data: {json.dumps({'type': 'email', 'data': email_data})}\n\n"
+                            time.sleep(0.1)  # Small delay to prevent rate limiting
+                            
+                        except Exception as e:
+                            print(f"Error processing individual email: {e}")
+                            continue
+                            
+                except Exception as e:
+                    print(f"Error processing category {cat}: {e}")
+                    continue
+            
+            # Send completion message
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+                
+        except Exception as e:
+            error_data = {
+                'type': 'error',
+                'message': str(e)
+            }
+            yield f"data: {json.dumps(error_data)}\n\n"
+    
+    return Response(
+        generate(category, days, credentials_dict),
+        mimetype='text/event-stream'
+    )
 
 def list_and_delete_old_emails(service, categories="promotions", days=30):
     """
@@ -279,6 +357,29 @@ def delete_selected():
         flash(f'Error: {str(e)}', 'error')
         
     return redirect('/')
+
+@app.route('/delete-batch', methods=['POST'])
+def delete_batch():
+    """Delete a batch of emails"""
+    try:
+        if 'credentials' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        service = get_service()
+        email_ids = request.json.get('email_ids', [])
+        
+        if not email_ids:
+            return jsonify({'error': 'No emails provided'}), 400
+            
+        service.users().messages().batchDelete(
+            userId='me',
+            body={'ids': email_ids}
+        ).execute()
+        
+        return jsonify({'success': True, 'count': len(email_ids)})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

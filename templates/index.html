@@ -3,87 +3,80 @@
 <head>
     <title>Gmail Cleanup Tool</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(to bottom right, #1a1a2e, #16213e);
-            color: #e2e2e2;
+            background: #343541;
+            color: #ececf1;
             min-height: 100vh;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: #40414f;
+            border: 1px solid #565869;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
         .list-group-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #40414f;
+            border: 1px solid #565869;
             margin-bottom: 8px;
-            border-radius: 8px !important;
-            transition: all 0.3s ease;
+            border-radius: 6px !important;
+            transition: all 0.2s ease;
+            color: #ececf1;
         }
 
         .list-group-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: #565869;
         }
 
         .card-title {
-            color: #00f2fe;
+            color: #ececf1;
             font-weight: 600;
-            letter-spacing: 1px;
         }
 
         h1 {
-            color: #00f2fe;
-            font-weight: 700;
-            letter-spacing: 2px;
+            color: #ececf1;
+            font-weight: 600;
             margin-bottom: 30px;
         }
 
         .alert {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: none;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            background: #40414f;
+            border: 1px solid #565869;
         }
 
         .alert-success {
-            border-left: 4px solid #198754;
+            border-left: 4px solid #19c37d;
         }
 
         .alert-error {
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid #ff4a4a;
         }
 
         .form-control, .form-select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e2e2e2;
+            background: #40414f;
+            border: 1px solid #565869;
+            color: #ececf1;
         }
 
         .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #00f2fe;
-            color: #e2e2e2;
-            box-shadow: 0 0 0 0.25rem rgba(0, 242, 254, 0.25);
+            background: #40414f;
+            border-color: #19c37d;
+            color: #ececf1;
+            box-shadow: 0 0 0 2px rgba(25, 195, 125, 0.25);
         }
 
         .btn-primary {
-            background: #00f2fe;
+            background: #19c37d;
             border: none;
-            color: #16213e;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            color: #ffffff;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .btn-primary:hover {
-            background: #00d4e0;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);
+            background: #1a8870;
         }
 
         #progress-container {
@@ -91,8 +84,8 @@
             overflow-y: auto;
             margin-top: 20px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            background: #40414f;
+            border-radius: 6px;
             display: none;
         }
 
@@ -100,19 +93,146 @@
             padding: 8px;
             margin-bottom: 8px;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #565869;
         }
 
         .progress-item.success {
-            border-left: 3px solid #198754;
+            border-left: 3px solid #19c37d;
         }
 
         .progress-item.error {
-            border-left: 3px solid #dc3545;
+            border-left: 3px solid #ff4a4a;
         }
 
         .progress-item.info {
-            border-left: 3px solid #0dcaf0;
+            border-left: 3px solid #2196f3;
+        }
+
+        .email-item {
+            background: #40414f;
+            border: 1px solid #565869;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .email-item .email-content {
+            display: grid;
+            grid-template-columns: 40px 150px minmax(300px, 1fr) 110px 100px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .email-item .sender {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .email-item .subject {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .email-item .date {
+            white-space: nowrap;
+            color: #8e8ea0;
+        }
+
+        .email-item .category {
+            text-align: right;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25em 0.75em;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .email-item:hover {
+            background: #565869;
+        }
+
+        .email-item.selected {
+            border-color: #19c37d;
+            background: rgba(25, 195, 125, 0.1);
+        }
+
+        .email-list {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Add styles for the form-check-input */
+        .form-check-input {
+            background-color: #40414f;
+            border: 1px solid #565869;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: #19c37d;
+            border-color: #19c37d;
+        }
+
+        /* Make sure the preview section is visible when shown */
+        #email-preview {
+            display: none;
+            margin-top: 30px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        #email-preview.visible {
+            display: block;
+        }
+
+        /* Update loading spinner styles */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #19c37d;
+        }
+
+        .btn-outline-success {
+            border-color: #19c37d;
+            color: #19c37d;
+        }
+        
+        .btn-outline-success:hover {
+            background-color: #19c37d;
+            color: white;
+        }
+
+        .btn-outline-danger {
+            border-color: #ff4a4a;
+            color: #ff4a4a;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #ff4a4a;
+            color: white;
+        }
+
+        #saved-emails .email-item {
+            border-left: 3px solid #19c37d;
+        }
+
+        /* Style for the action buttons */
+        .action-button {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -129,11 +249,11 @@
         {% endwith %}
 
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Custom Cleanup</h5>
-                        <form method="GET" action="{{ url_for('preview') }}" class="mb-4">
+                        <h5 class="card-title mb-4">Email Cleanup</h5>
+                        <form id="previewForm" class="mb-4">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="category" class="form-label">Email Category</label>
@@ -155,29 +275,56 @@
                                 </div>
                             </div>
                         </form>
-
-                        <h5 class="card-title mb-4">Quick Actions</h5>
-                        <div class="list-group">
-                            <a href="{{ url_for('preview', category='promotions', days=30) }}" 
-                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span>Clean Promotional Emails</span>
-                                <span class="badge bg-primary rounded-pill">30 days</span>
-                            </a>
-                            <a href="{{ url_for('preview', category='social', days=30) }}" 
-                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span>Clean Social Emails</span>
-                                <span class="badge bg-primary rounded-pill">30 days</span>
-                            </a>
-                            <a href="{{ url_for('preview', category='updates', days=30) }}" 
-                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span>Clean Updates Emails</span>
-                                <span class="badge bg-primary rounded-pill">30 days</span>
-                            </a>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Add this new section for progress updates -->
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading emails...</p>
+                </div>
+
+                <!-- Email Preview Section -->
+                <div id="email-preview" class="card mt-4" style="display: none;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title mb-1">Email Cleanup</h5>
+                                <div class="stats text-muted">
+                                    <div>Found: <span id="currentBatchCount">0</span> emails</div>
+                                    <div>Deleted: <span id="totalEmailsDeleted">0</span> emails</div>
+                                    <div>Status: <span id="cleanupStatus">Waiting to start</span></div>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-success" id="startButton" onclick="startContinuousCleanup()">
+                                    <i class="bi bi-play-fill"></i> Start Cleanup
+                                </button>
+                                <button type="button" class="btn btn-danger" id="stopButton" onclick="stopContinuousCleanup()" style="display: none;">
+                                    <i class="bi bi-stop-fill"></i> Stop Cleanup
+                                </button>
+                            </div>
+                        </div>
+                        <div id="email-list" class="email-list"></div>
+                    </div>
+                </div>
+
+                <!-- Saved Emails Section -->
+                <div id="saved-emails" class="card mt-4" style="display: none;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h5 class="card-title mb-1">Saved Emails</h5>
+                                <small class="text-muted">Emails protected from deletion</small>
+                            </div>
+                        </div>
+                        <div id="saved-email-list" class="email-list"></div>
+                    </div>
+                </div>
+
+                <!-- Progress Container -->
                 <div id="progress-container" class="card mt-4">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Progress Updates</h5>
@@ -189,40 +336,277 @@
     </div>
 
     <script>
-        // JavaScript to handle Server-Sent Events
-        function startProgressStream() {
-            const progressContainer = document.getElementById('progress-container');
-            const progressUpdates = document.getElementById('progress-updates');
-            progressContainer.style.display = 'block';
-            progressUpdates.innerHTML = ''; // Clear previous updates
+        let allSelected = false;
+        const previewForm = document.getElementById('previewForm');
+        const emailPreview = document.getElementById('email-preview');
+        const emailList = document.getElementById('email-list');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const emailCount = document.getElementById('emailCount');
+        let isCleanupRunning = false;
+        let currentBatchCount = 0;
+        let totalDeleted = 0;
+        let currentBatch = [];
+        let eventSource = null;
+        let savedEmails = new Set();
 
-            const evtSource = new EventSource("/stream");
+        previewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            startPreview();
+        });
+
+        function updateStats() {
+            document.getElementById('currentBatchCount').textContent = currentBatchCount;
+            document.getElementById('totalEmailsDeleted').textContent = totalDeleted;
+        }
+
+        function startContinuousCleanup() {
+            isCleanupRunning = true;
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('stopButton').style.display = 'inline-block';
+            document.getElementById('cleanupStatus').textContent = 'Running';
+            document.getElementById('cleanupStatus').style.color = '#19c37d';
             
-            evtSource.onmessage = function(event) {
+            // If we have emails loaded, start deleting them
+            if (currentBatch.length > 0) {
+                processCurrentBatch();
+            }
+        }
+
+        function stopContinuousCleanup() {
+            isCleanupRunning = false;
+            document.getElementById('startButton').style.display = 'inline-block';
+            document.getElementById('stopButton').style.display = 'none';
+            document.getElementById('cleanupStatus').textContent = 'Stopped';
+            document.getElementById('cleanupStatus').style.color = '#ff4a4a';
+            
+            if (eventSource) {
+                eventSource.close();
+            }
+        }
+
+        function startPreview() {
+            // Reset counters and UI
+            emailList.innerHTML = '';
+            currentBatch = [];
+            currentBatchCount = 0;  // Reset batch counter
+            updateStats();
+            
+            document.getElementById('cleanupStatus').textContent = 'Loading emails...';
+            loadingSpinner.style.display = 'block';
+            emailPreview.style.display = 'none';
+
+            const category = document.getElementById('category').value;
+            const days = document.getElementById('days').value;
+
+            // Connect to SSE stream
+            eventSource = new EventSource(`/stream-emails?category=${category}&days=${days}`);
+
+            eventSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                const item = document.createElement('div');
-                item.className = `progress-item ${data.category}`;
-                item.textContent = data.message;
-                progressUpdates.appendChild(item);
-                item.scrollIntoView({ behavior: 'smooth' });
+                
+                if (data.type === 'email') {
+                    currentBatchCount++;  // Increment batch counter instead of total
+                    currentBatch.push(data.data);
+                    
+                    const emailItem = createEmailItem(data.data, currentBatch.length);
+                    emailList.appendChild(emailItem);
+                    
+                    // Show preview section if it's the first email
+                    if (currentBatch.length === 1) {
+                        loadingSpinner.style.display = 'none';
+                        emailPreview.style.display = 'block';
+                    }
+                    
+                    updateStats();
+                }
+                else if (data.type === 'complete') {
+                    if (currentBatch.length > 0 && isCleanupRunning) {
+                        processCurrentBatch();
+                    }
+                    document.getElementById('cleanupStatus').textContent = 
+                        isCleanupRunning ? 'Processing batch...' : 'Ready to start';
+                }
+                else if (data.type === 'error') {
+                    handleError(data.message);
+                }
             };
 
-            evtSource.onerror = function(err) {
-                console.error("EventSource failed:", err);
-                evtSource.close();
+            eventSource.onerror = function(error) {
+                handleError('Connection error');
             };
         }
 
-        // Add event listeners to all cleanup links and forms
-        document.addEventListener('DOMContentLoaded', function() {
-            const cleanupLinks = document.querySelectorAll('.list-group-item');
-            cleanupLinks.forEach(link => {
-                link.addEventListener('click', startProgressStream);
-            });
+        async function processCurrentBatch() {
+            if (!isCleanupRunning || currentBatch.length === 0) return;
 
-            const cleanupForm = document.querySelector('form');
-            cleanupForm.addEventListener('submit', startProgressStream);
-        });
+            try {
+                document.getElementById('cleanupStatus').textContent = 'Deleting batch...';
+                
+                // Filter out saved emails from the batch
+                const emailsToDelete = currentBatch.filter(email => !savedEmails.has(email.id));
+                
+                const response = await fetch('/delete-batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email_ids: emailsToDelete.map(email => email.id)
+                    })
+                });
+
+                if (response.ok) {
+                    totalDeleted += emailsToDelete.length;
+                    updateStats();
+                    
+                    // Clear the current batch and UI
+                    currentBatch = [];
+                    emailList.innerHTML = '';
+                    
+                    // Request next batch of emails
+                    startPreview();
+                } else {
+                    throw new Error('Failed to delete batch');
+                }
+            } catch (error) {
+                handleError(error.message);
+                stopContinuousCleanup();
+            }
+        }
+
+        function handleError(message) {
+            console.error('Error:', message);
+            document.getElementById('cleanupStatus').textContent = 'Error: ' + message;
+            document.getElementById('cleanupStatus').style.color = '#ff4a4a';
+            loadingSpinner.style.display = 'none';
+            if (eventSource) {
+                eventSource.close();
+            }
+        }
+
+        function createEmailItem(email, index, isSaved = false) {
+            const div = document.createElement('div');
+            div.className = 'email-item';
+            div.innerHTML = `
+                <div class="email-content">
+                    <div class="action-wrapper">
+                        ${!isSaved ? `
+                            <button class="btn btn-sm btn-outline-success action-button" onclick="saveEmail('${email.id}')">
+                                <i class="bi bi-bookmark-plus"></i>
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-danger action-button" onclick="unsaveEmail('${email.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        `}
+                    </div>
+                    <div class="sender" title="${email.sender || 'Unknown'}">
+                        ${email.sender || 'Unknown'}
+                    </div>
+                    <div class="subject" title="${email.subject || 'No Subject'}">
+                        ${email.subject || 'No Subject'}
+                    </div>
+                    <div class="date">
+                        ${email.date || 'No Date'}
+                    </div>
+                    <div class="category">
+                        <span class="badge bg-info">${email.category}</span>
+                    </div>
+                </div>
+            `;
+
+            return div;
+        }
+
+        function toggleAll() {
+            allSelected = !allSelected;
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = allSelected;
+                updateEmailItemStyle(checkbox);
+            });
+        }
+
+        function updateEmailItemStyle(checkbox) {
+            const emailItem = checkbox.closest('.email-item');
+            if (checkbox.checked) {
+                emailItem.classList.add('selected');
+            } else {
+                emailItem.classList.remove('selected');
+            }
+        }
+
+        function deleteSelected() {
+            const form = document.getElementById('deleteForm');
+            const formData = new FormData(form);
+            
+            fetch('/delete-selected', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    // Handle successful deletion
+                    emailPreview.style.display = 'none';
+                    // Show success message
+                }
+            }).catch(error => {
+                // Handle error
+                console.error('Error:', error);
+            });
+        }
+
+        function startPreviewWithParams(category, days) {
+            // Set the form values
+            document.getElementById('category').value = category;
+            document.getElementById('days').value = days;
+            
+            // Start the preview
+            startPreview();
+        }
+
+        function saveEmail(emailId) {
+            const emailToSave = currentBatch.find(email => email.id === emailId);
+            if (emailToSave) {
+                // Add to saved set
+                savedEmails.add(emailId);
+                
+                // Remove from current batch
+                currentBatch = currentBatch.filter(email => email.id !== emailId);
+                currentBatchCount--;
+                updateStats();
+
+                // Add to saved emails list
+                const savedEmailList = document.getElementById('saved-email-list');
+                const savedEmailItem = createEmailItem(emailToSave, savedEmails.size, true);
+                savedEmailList.appendChild(savedEmailItem);
+
+                // Show saved emails card if it's the first saved email
+                document.getElementById('saved-emails').style.display = 'block';
+
+                // Remove from current display
+                const emailElement = document.querySelector(`button[onclick*="${emailId}"]`).closest('.email-item');
+                emailElement.remove();
+            }
+        }
+
+        function unsaveEmail(emailId) {
+            if (savedEmails.has(emailId)) {
+                // Remove from saved set
+                savedEmails.delete(emailId);
+                
+                // Remove from saved emails display
+                const emailElement = document.querySelector(`#saved-email-list .email-item:has(button[onclick*="${emailId}"])`);
+                emailElement.remove();
+
+                // Hide saved emails card if empty
+                if (savedEmails.size === 0) {
+                    document.getElementById('saved-emails').style.display = 'none';
+                }
+
+                // Add back to current batch if we're still loading the same category
+                // (optional - you might want to skip this and just let it be deleted in the next batch)
+                startPreview();
+            }
+        }
     </script>
 </body>
 </html> 
